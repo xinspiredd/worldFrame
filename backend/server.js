@@ -26,7 +26,7 @@ app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URL; // или process.env.MONGODB_URI, смотря как названо
+process.env.MONGODB_URI = process.env.MONGO_URL; // или process.env.MONGODB_URI, смотря как названо
 
 if (!MONGO_URI) {
   console.error('❌ MONGO_URL не задан');
@@ -47,3 +47,4 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
