@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>worldFrame — билды для NFS World</title>
+    <style>
+        /* ========== ТЁМНАЯ ТЕМА ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #121212;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Шапка */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e1e1e;
+            padding: 15px 30px;
+            border-radius: 60px;
+            margin-bottom: 40px;
+            border: 1px solid #333;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: #2a2a2a;
+            border: 1px solid #444;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #2a6f8a;
+            color: #fff;
+            border-color: #4ab0ff;
+        }
+
+        .user-bar {
+            display: flex;
+            gap: 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .user-bar a {
+            color: #8cc9ff;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e1e1e;
+            border: 1px solid #2a6f8a;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h2 {
+            color: #8cc9ff;
+            margin-bottom: 20px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 40px;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #2a6f8a;
+            color: #fff;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: #3a3a3a;
+            color: #ccc;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+        }
+
+        /* Основной макет */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .sidebar {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #333;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2a6f8a;
+            padding-bottom: 5px;
+            display: inline-block;
+            color: #8cc9ff;
+        }
+
+        .class-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .class-btn {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 12px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .class-btn:hover {
+            background: #2f3f4a;
+            border-color: #4ab0ff;
+        }
+
+        .class-btn.active {
+            background: #2a6f8a;
+            color: #fff;
+            border-color: #4ab0ff;
+        }
+
+        .class-btn .count {
+            margin-left: auto;
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .manufacturer-select, .search-input {
+            width: 100%;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 40px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            margin-bottom: 0;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: #1a1a1a;
+            padding: 15px 25px;
+            border-radius: 60px;
+            border: 1px solid #333;
+        }
+
+        .collection-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #8cc9ff;
+        }
+
+        .model-count {
+            background: #2a2a2a;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: 1px solid #444;
+        }
+
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .car-card {
+            background: #1a1a1a;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-card:hover {
+            transform: translateY(-5px);
+            border-color: #2a6f8a;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .card-image {
+            height: 140px;
+            background-color: #2a2a2a;
+            background-size: cover;
+            background-position: center;
+            border-bottom: 1px solid #2a6f8a;
+        }
+
+        .card-content {
+            padding: 18px 16px 16px;
+            flex-grow: 1;
+        }
+
+        .car-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            max-height: 3.9rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .car-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #2a2a2a;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 1px solid #444;
+            color: #aaa;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #333;
+            padding-top: 12px;
+        }
+
+        .builds-link {
+            background: #2a2a2a;
+            color: #ccc;
+            text-decoration: none;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.2s;
+            border: 1px solid #444;
+        }
+
+        .builds-link:hover {
+            background: #2a6f8a;
+            color: #fff;
+            border-color: #4ab0ff;
+        }
+
+        /* Админ-панель для фото */
+        .admin-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #2a6f8a;
+        }
+
+        .admin-section.hidden {
+            display: none;
+        }
+
+        .admin-section select,
+        .admin-section input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Модальное окно входа/регистрации -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2 id="authTitle">Вход</h2>
+            <input type="text" id="authLogin" placeholder="Логин">
+            <input type="password" id="authPassword" placeholder="Пароль">
+            <div id="adminKeyField" style="display: none;">
+                <input type="text" id="authAdminKey" placeholder="Админ ключ (если есть)">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="App.submitAuth()">Войти</button>
+                <button class="btn-secondary" onclick="App.closeAuthModal()">Отмена</button>
+            </div>
+            <p style="text-align:center; margin-top:15px;">
+                <a href="#" onclick="App.toggleAuthMode()" id="authToggle" style="color:#8cc9ff;">Регистрация</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Шапка -->
+        <div class="top-bar">
+            <div class="logo">worldFRAME</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Билды</a>
+                <a href="vinyls.html" class="nav-link">Винилы</a>
+            </div>
+            <div class="user-bar" id="userBar">
+                <a onclick="App.openAuthModal('login')">Войти</a> | <a onclick="App.openAuthModal('register')">Регистрация</a>
+            </div>
+        </div>
+
+        <!-- Основной макет -->
+        <div class="main-layout">
+            <!-- Левая колонка -->
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <div class="filter-title">ПОИСК</div>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Введите название машины...">
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">КЛАСС</div>
+                    <div class="class-buttons" id="classButtons"></div>
+                </div>
+                <div class="filter-section">
+                    <div class="filter-title">ПРОИЗВОДИТЕЛЬ</div>
+                    <select id="manufacturerSelect" class="manufacturer-select"></select>
+                </div>
+
+                <!-- Админ-панель для загрузки фото (видна только админу) -->
+                <div id="adminPhotoPanel" class="admin-section hidden">
+                    <div class="filter-title">ФОТО МАШИН (АДМИН)</div>
+                    <select id="carSelectForImage" class="manufacturer-select"></select>
+                    <input type="text" id="carImageUrl" class="search-input" placeholder="URL изображения">
+                    <button class="btn-primary" onclick="saveCarImage()" style="width:100%;">Сохранить фото</button>
+                </div>
+            </aside>
+
+            <!-- Правая колонка -->
+            <main>
+                <div class="content-header">
+                    <div class="collection-title">Все машины</div>
+                    <div class="model-count" id="modelCount">0</div>
+                </div>
+                <div class="cars-grid" id="carsGrid"></div>
+            </main>
+        </div>
+
+        <footer>
+            <p>© worldFrame 2025 · Билды и винилы для NFS World</p>
+        </footer>
+    </div>
+
+    <script src="cars.js"></script>
+    <script src="carImages.js"></script>
+    <script src="api.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+        const carsData = window.carsData;
+
+        function extractManufacturer(carName) {
+            const upper = carName.toUpperCase();
+            if (upper.includes('ALFA ROMEO')) return 'ALFA ROMEO';
+            if (upper.includes('ASTON MARTIN')) return 'ASTON MARTIN';
+            if (upper.includes('LAND ROVER')) return 'LAND ROVER';
+            if (upper.includes('NISSAN') || upper.includes('SKYLINE')) return 'NISSAN';
+            return carName.split(' ')[0].toUpperCase();
+        }
+
+        let allCars = [];
+        let manufacturers = new Set();
+        for (const [carClass, cars] of Object.entries(carsData)) {
+            cars.forEach(name => {
+                allCars.push({ name, class: carClass });
+                manufacturers.add(extractManufacturer(name));
+            });
+        }
+        const manufacturerList = Array.from(manufacturers).sort();
+
+        // Состояние фильтров
+        let selectedClass = 'all';
+        let selectedManufacturer = 'all';
+        let searchText = '';
+
+        // Элементы
+        const classButtonsDiv = document.getElementById('classButtons');
+        const manufSelect = document.getElementById('manufacturerSelect');
+        const carsGrid = document.getElementById('carsGrid');
+        const modelCountSpan = document.getElementById('modelCount');
+        const searchInput = document.getElementById('searchInput');
+        const adminPhotoPanel = document.getElementById('adminPhotoPanel');
+        const carSelect = document.getElementById('carSelectForImage');
+        const carImageUrl = document.getElementById('carImageUrl');
+
+        // Заполнение селекта для фото
+        allCars.forEach(car => {
+            const option = document.createElement('option');
+            option.value = car.name;
+            option.textContent = car.name;
+            carSelect.appendChild(option);
+        });
+
+        window.saveCarImage = function() {
+            const carName = carSelect.value;
+            const url = carImageUrl.value.trim();
+            if (!carName || !url) {
+                alert('Выберите машину и введите URL');
+                return;
+            }
+            window.carImages.setImageUrl(carName, url);
+            alert('Фото сохранено!');
+            applyFilters(); // обновить отображение
+        };
+
+        // Фильтр классов
+        const classes = ['all', 'E', 'D', 'C', 'B', 'A', 'S'];
+        const classNames = { 'all': 'Все', 'E': 'E', 'D': 'D', 'C': 'C', 'B': 'B', 'A': 'A', 'S': 'S' };
+        classes.forEach(cls => {
+            const btn = document.createElement('div');
+            btn.className = `class-btn ${cls === 'all' ? 'active' : ''}`;
+            btn.dataset.class = cls;
+            const count = cls === 'all' ? allCars.length : (carsData[cls]?.length || 0);
+            btn.innerHTML = `<span>${classNames[cls]}</span><span class="count">${count}</span>`;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedClass = cls;
+                applyFilters();
+            });
+            classButtonsDiv.appendChild(btn);
+        });
+
+        // Фильтр производителей
+        manufSelect.innerHTML = '<option value="all">Все марки</option>';
+        manufacturerList.forEach(man => {
+            const option = document.createElement('option');
+            option.value = man;
+            option.textContent = man;
+            manufSelect.appendChild(option);
+        });
+        manufSelect.addEventListener('change', (e) => {
+            selectedManufacturer = e.target.value;
+            applyFilters();
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            searchText = e.target.value.toLowerCase();
+            applyFilters();
+        });
+
+        function applyFilters() {
+            let filtered = allCars.filter(car => {
+                if (selectedClass !== 'all' && car.class !== selectedClass) return false;
+                if (selectedManufacturer !== 'all' && extractManufacturer(car.name) !== selectedManufacturer) return false;
+                if (searchText && !car.name.toLowerCase().includes(searchText)) return false;
+                return true;
+            });
+
+            modelCountSpan.textContent = filtered.length;
+            carsGrid.innerHTML = filtered.map(car => {
+                return `
+                    <div class="car-card" data-name="${car.name.replace(/"/g, '&quot;')}" data-class="${car.class}">
+                        <div class="card-image" style="background-image: url('${window.carImages.getImageUrl(car.name)}');"></div>
+                        <div class="card-content">
+                            <div class="car-name">${car.name}</div>
+                            <div class="car-tags">
+                                <span class="tag">${car.class}-класс</span>
+                            </div>
+                            <div class="card-footer">
+                                <a href="car.html?car=${encodeURIComponent(car.name)}&class=${car.class}" class="builds-link" target="_blank">Билды</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.car-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('a')) {
+                        const name = card.dataset.name;
+                        const carClass = card.dataset.class;
+                        window.open(`car.html?car=${encodeURIComponent(name)}&class=${carClass}`, '_blank');
+                    }
+                });
+            });
+        }
+
+        applyFilters();
+    </script>
+</body>
+</html>

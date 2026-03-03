@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>worldFrame — винилы</title>
+    <style>
+        /* Те же стили, что в index.html (тёмная тема) – скопированы, для краткости оставлю ссылку */
+        /* В реальном проекте можно вынести общий CSS в отдельный файл, но здесь я приведу основные отличия */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background:#121212; color:#e0e0e0; line-height:1.5; }
+        .wrapper { max-width:1400px; margin:0 auto; padding:20px; }
+
+        .top-bar { display:flex; align-items:center; justify-content:space-between; background:#1e1e1e; padding:15px 30px; border-radius:60px; margin-bottom:40px; border:1px solid #333; flex-wrap:wrap; gap:15px; }
+        .logo { font-size:2.5rem; font-weight:700; letter-spacing:-1px; color:#fff; }
+        .nav-links { display:flex; gap:10px; }
+        .nav-link { color:#ccc; text-decoration:none; padding:8px 24px; border-radius:40px; font-weight:500; font-size:1rem; transition:0.2s; background:#2a2a2a; border:1px solid #444; }
+        .nav-link:hover, .nav-link.active { background:#2a6f8a; color:#fff; border-color:#4ab0ff; }
+        .user-bar { display:flex; gap:10px; color:#aaa; font-size:0.9rem; }
+        .user-bar a { color:#8cc9ff; text-decoration:none; cursor:pointer; font-weight:500; }
+
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:1000; }
+        .modal.active { display:flex; }
+        .modal-content { background:#1e1e1e; border:1px solid #2a6f8a; border-radius:20px; padding:30px; width:90%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+        .modal-content h2 { color:#8cc9ff; margin-bottom:20px; }
+        .modal-content input, .modal-content textarea { width:100%; padding:14px 16px; background:#2a2a2a; border:1px solid #444; border-radius:40px; color:#fff; font-size:1rem; margin-bottom:15px; }
+        .modal-content textarea { border-radius:20px; resize:vertical; }
+        .modal-actions { display:flex; gap:10px; margin-top:10px; }
+        .btn-primary { background:#2a6f8a; color:#fff; padding:12px; border-radius:40px; font-weight:600; cursor:pointer; border:none; flex:1; }
+        .btn-secondary { background:#3a3a3a; color:#ccc; padding:12px; border-radius:40px; font-weight:600; cursor:pointer; border:none; flex:1; }
+
+        /* Уникальные стили */
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; background:#1a1a1a; padding:20px 30px; border-radius:60px; border:1px solid #333; }
+        .page-header h1 { font-size:2rem; font-weight:600; color:#8cc9ff; }
+        .add-btn { background:#2a6f8a; color:#fff; border:none; padding:12px 30px; border-radius:40px; font-size:1.1rem; font-weight:600; cursor:pointer; transition:0.2s; border:1px solid #4ab0ff; }
+        .add-btn:hover { background:#1f5a70; }
+
+        .search-sort { display:flex; gap:15px; margin-bottom:25px; background:#1a1a1a; padding:15px 25px; border-radius:60px; border:1px solid #333; align-items:center; }
+        .search-sort input { flex:1; background:#2a2a2a; border:1px solid #444; color:#fff; padding:12px 20px; border-radius:40px; font-size:1rem; }
+        .search-sort select { background:#2a2a2a; border:1px solid #444; color:#fff; padding:12px 20px; border-radius:40px; font-size:1rem; cursor:pointer; }
+
+        .vinyls-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:25px; margin-bottom:40px; }
+        .vinyl-card { background:#1a1a1a; border-radius:16px; overflow:hidden; border:1px solid #333; transition:0.2s; display:flex; flex-direction:column; }
+        .vinyl-card:hover { border-color:#2a6f8a; box-shadow:0 10px 20px rgba(0,0,0,0.5); }
+        .vinyl-image { width:100%; height:180px; object-fit:cover; background:#2a2a2a; border-bottom:1px solid #2a6f8a; }
+        .vinyl-info { padding:20px; flex-grow:1; }
+        .vinyl-title { font-size:1.4rem; font-weight:600; color:#fff; margin-bottom:8px; }
+        .vinyl-car { color:#8cc9ff; font-size:1rem; margin-bottom:12px; display:flex; align-items:center; gap:5px; }
+        .vinyl-code { background:#2a2a2a; padding:12px; border-radius:8px; font-family:monospace; font-size:0.9rem; color:#aaa; border:1px solid #444; margin:15px 0; word-break:break-all; max-height:100px; overflow-y:auto; position:relative; }
+        .copy-btn { position:absolute; top:5px; right:5px; background:#2a6f8a; color:#fff; border:none; border-radius:20px; padding:4px 12px; font-size:0.7rem; cursor:pointer; }
+        .vinyl-stats { display:flex; gap:15px; margin:10px 0; color:#aaa; align-items:center; }
+        .vinyl-stats span { display:flex; align-items:center; gap:5px; cursor:pointer; }
+        .likes { color:#4caf50; }
+        .dislikes { color:#ff4d4d; }
+        .delete-btn, .delete-comment { margin-left:auto; color:#ff4d4d; cursor:pointer; }
+        .comments-section { margin-top:15px; border-top:1px solid #333; padding-top:15px; }
+        .comment { background:#2a2a2a; border-radius:12px; padding:10px; margin-bottom:10px; position:relative; }
+        .comment-author { color:#8cc9ff; font-weight:600; margin-bottom:5px; }
+        .comment-text { color:#ccc; font-size:0.9rem; }
+        .delete-comment { position:absolute; top:5px; right:5px; }
+        .add-comment { display:flex; gap:10px; margin-top:10px; }
+        .add-comment input { flex:1; background:#2a2a2a; border:1px solid #444; border-radius:40px; padding:10px 15px; color:#fff; }
+        .add-comment button { background:#2a6f8a; border:none; border-radius:40px; padding:10px 20px; color:#fff; cursor:pointer; }
+        .vinyl-author { color:#666; font-size:0.85rem; text-align:right; margin-top:10px; }
+        .vinyl-date { color:#888; font-size:0.8rem; margin-bottom:5px; }
+
+        footer { text-align:center; color:#666; margin-top:60px; font-size:0.9rem; }
+
+        .search-select { position:relative; }
+        .search-select .dropdown { position:absolute; top:100%; left:0; right:0; background:#2a2a2a; border:1px solid #444; border-radius:16px; max-height:200px; overflow-y:auto; z-index:10; display:none; }
+        .search-select .dropdown.show { display:block; }
+        .search-select .dropdown div { padding:10px 16px; cursor:pointer; color:#ccc; }
+        .search-select .dropdown div:hover { background:#2a6f8a; color:#fff; }
+    </style>
+</head>
+<body>
+    <!-- Модальное окно входа/регистрации (такое же, как в index) -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2 id="authTitle">Вход</h2>
+            <input type="text" id="authLogin" placeholder="Логин">
+            <input type="password" id="authPassword" placeholder="Пароль">
+            <div id="adminKeyField" style="display: none;">
+                <input type="text" id="authAdminKey" placeholder="Админ ключ (если есть)">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="App.submitAuth()">Войти</button>
+                <button class="btn-secondary" onclick="App.closeAuthModal()">Отмена</button>
+            </div>
+            <p style="text-align:center; margin-top:15px;">
+                <a href="#" onclick="App.toggleAuthMode()" id="authToggle" style="color:#8cc9ff;">Регистрация</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления винила -->
+    <div id="vinylModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <h2>➕ Новый винил</h2>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:#ccc;">Название винила</label>
+                <input type="text" id="vinylName" placeholder="Например: Winter Drift">
+            </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:#ccc;">Машина</label>
+                <div class="search-select" id="carSearchContainer">
+                    <input type="text" id="carSearchInput" placeholder="Начните вводить модель..." autocomplete="off">
+                    <div class="dropdown" id="carDropdown"></div>
+                </div>
+                <input type="hidden" id="selectedCar">
+            </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:#ccc;">Код винила</label>
+                <textarea id="vinylCode" rows="4" placeholder="Вставьте код винила..."></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:#ccc;">Обложка</label>
+                <input type="file" id="vinylImage" accept="image/*">
+                <img id="imagePreview" class="image-preview" style="display: none; max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #2a6f8a;">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="saveVinyl()">Сохранить</button>
+                <button class="btn-secondary" onclick="closeVinylModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Шапка -->
+        <div class="top-bar">
+            <div class="logo">worldFRAME</div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Билды</a>
+                <a href="vinyls.html" class="nav-link active">Винилы</a>
+            </div>
+            <div class="user-bar" id="userBar">
+                <a onclick="App.openAuthModal('login')">Войти</a> | <a onclick="App.openAuthModal('register')">Регистрация</a>
+            </div>
+        </div>
+
+        <!-- Заголовок и кнопка добавления -->
+        <div class="page-header">
+            <h1>Галерея винилов</h1>
+            <button class="add-btn" onclick="openVinylModal()">+ Добавить винил</button>
+        </div>
+
+        <!-- Поиск и сортировка -->
+        <div class="search-sort">
+            <input type="text" id="searchVinyls" placeholder="🔍 Поиск по названию или машине...">
+            <select id="sortVinyls">
+                <option value="date">По дате (новые)</option>
+                <option value="likes">По популярности (лайки)</option>
+            </select>
+        </div>
+
+        <!-- Сетка винилов -->
+        <div class="vinyls-grid" id="vinylsGrid"></div>
+
+        <footer>
+            <p>© worldFrame 2025 · Билды и винилы для NFS World</p>
+        </footer>
+    </div>
+
+    <script src="cars.js"></script>
+    <script src="api.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // ---------- ДАННЫЕ ----------
+        const carsData = window.carsData;
+        let allCarNames = [];
+        for (const cars of Object.values(carsData)) {
+            allCarNames.push(...cars);
+        }
+        allCarNames.sort();
+
+        // ---------- ФУНКЦИИ ДЛЯ ВИНИЛОВ ----------
+        let vinyls = [];
+
+        async function loadVinyls() {
+            try {
+                vinyls = await api.getVinyls();
+                renderVinyls();
+            } catch (error) {
+                console.error('Ошибка загрузки винилов:', error);
+            }
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
+        // ---------- ОТОБРАЖЕНИЕ ----------
+        const searchInput = document.getElementById('searchVinyls');
+        const sortSelect = document.getElementById('sortVinyls');
+        const grid = document.getElementById('vinylsGrid');
+
+        function renderVinyls() {
+            let filtered = vinyls.filter(v => {
+                const search = searchInput.value.toLowerCase();
+                return v.name.toLowerCase().includes(search) || v.car.toLowerCase().includes(search);
+            });
+
+            const sortBy = sortSelect.value;
+            if (sortBy === 'likes') {
+                filtered.sort((a, b) => (b.likes.length - b.dislikes.length) - (a.likes.length - a.dislikes.length));
+            } else {
+                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px; background:#1a1a1a; border-radius:20px;">Ничего не найдено</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(v => {
+                const user = App.getCurrentUser();
+                const userLiked = user && v.likes.includes(user.id);
+                const userDisliked = user && v.dislikes.includes(user.id);
+                return `
+                    <div class="vinyl-card" data-id="${v._id}">
+                        <img class="vinyl-image" src="${v.image || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%232a2a2a%22/><text x=%2250%22 y=%2255%22 font-size=%2230%22 text-anchor=%22middle%22 fill=%22%23666%22>🎨</text></svg>'}" alt="vinyl">
+                        <div class="vinyl-info">
+                            <div class="vinyl-title">${escapeHtml(v.name)}</div>
+                            <div class="vinyl-car">🚗 ${escapeHtml(v.car)}</div>
+                            <div class="vinyl-code">
+                                ${escapeHtml(v.code).replace(/\n/g, '<br>')}
+                                <button class="copy-btn" onclick="copyCode('${escapeHtml(v.code).replace(/'/g, "\\'")}')">Копировать</button>
+                            </div>
+                            <div class="vinyl-stats">
+                                <span class="likes" onclick="likeVinyl('${v._id}')" style="${userLiked ? 'font-weight:bold;' : ''}">👍 ${v.likes.length}</span>
+                                <span class="dislikes" onclick="dislikeVinyl('${v._id}')" style="${userDisliked ? 'font-weight:bold;' : ''}">👎 ${v.dislikes.length}</span>
+                                ${App.isAdmin() ? `<span class="delete-btn" onclick="deleteVinyl('${v._id}')">🗑️</span>` : ''}
+                            </div>
+                            <div class="vinyl-date">📅 ${formatDate(v.createdAt)}</div>
+                            <div class="comments-section">
+                                ${v.comments.map((c, index) => `
+                                    <div class="comment">
+                                        <div class="comment-author">${escapeHtml(c.author)}</div>
+                                        <div class="comment-text">${escapeHtml(c.text)}</div>
+                                        ${App.isAdmin() ? `<span class="delete-comment" onclick="deleteVinylComment('${v._id}', '${c._id}')">🗑️</span>` : ''}
+                                    </div>
+                                `).join('')}
+                                <div class="add-comment">
+                                    <input type="text" id="comment-${v._id}" placeholder="Ваш комментарий...">
+                                    <button onclick="addVinylComment('${v._id}')">Отправить</button>
+                                </div>
+                            </div>
+                            <div class="vinyl-author">by ${escapeHtml(v.author)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Функции взаимодействия
+        window.likeVinyl = async (id) => {
+            try {
+                const result = await api.likeVinyl(id, 'like');
+                // Обновляем данные на месте для быстрого отклика
+                const vinyl = vinyls.find(v => v._id === id);
+                if (vinyl) {
+                    vinyl.likes = result.likes;
+                    vinyl.dislikes = result.dislikes;
+                }
+                renderVinyls();
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        window.dislikeVinyl = async (id) => {
+            try {
+                const result = await api.likeVinyl(id, 'dislike');
+                const vinyl = vinyls.find(v => v._id === id);
+                if (vinyl) {
+                    vinyl.likes = result.likes;
+                    vinyl.dislikes = result.dislikes;
+                }
+                renderVinyls();
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        window.addVinylComment = async (id) => {
+            const input = document.getElementById(`comment-${id}`);
+            const text = input.value.trim();
+            if (!text) return;
+            try {
+                const newComment = await api.addVinylComment(id, text);
+                const vinyl = vinyls.find(v => v._id === id);
+                if (vinyl) {
+                    vinyl.comments.push(newComment);
+                }
+                renderVinyls();
+                input.value = '';
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        window.copyCode = (code) => {
+            navigator.clipboard.writeText(code).then(() => alert('Код скопирован!'));
+        };
+
+        window.deleteVinyl = async (id) => {
+            if (!confirm('Удалить винил?')) return;
+            try {
+                await api.deleteVinyl(id);
+                vinyls = vinyls.filter(v => v._id !== id);
+                renderVinyls();
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        window.deleteVinylComment = async (vinylId, commentId) => {
+            if (!confirm('Удалить комментарий?')) return;
+            try {
+                await api.deleteVinylComment(vinylId, commentId);
+                const vinyl = vinyls.find(v => v._id === vinylId);
+                if (vinyl) {
+                    vinyl.comments = vinyl.comments.filter(c => c._id !== commentId);
+                }
+                renderVinyls();
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        searchInput.addEventListener('input', renderVinyls);
+        sortSelect.addEventListener('change', renderVinyls);
+
+        // ---------- МОДАЛКА ДОБАВЛЕНИЯ ВИНИЛА ----------
+        const vinylModal = document.getElementById('vinylModal');
+        const vinylName = document.getElementById('vinylName');
+        const vinylCode = document.getElementById('vinylCode');
+        const vinylImage = document.getElementById('vinylImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const carSearchInput = document.getElementById('carSearchInput');
+        const carDropdown = document.getElementById('carDropdown');
+        const selectedCar = document.getElementById('selectedCar');
+
+        function openVinylModal() {
+            vinylModal.classList.add('active');
+            vinylName.value = '';
+            vinylCode.value = '';
+            carSearchInput.value = '';
+            selectedCar.value = '';
+            imagePreview.style.display = 'none';
+            imagePreview.src = '';
+            vinylImage.value = '';
+        }
+        function closeVinylModal() {
+            vinylModal.classList.remove('active');
+        }
+        window.openVinylModal = openVinylModal;
+        window.closeVinylModal = closeVinylModal;
+
+        carSearchInput.addEventListener('input', () => {
+            const query = carSearchInput.value.toLowerCase();
+            const filtered = allCarNames.filter(name => name.toLowerCase().includes(query));
+            carDropdown.innerHTML = filtered.map(name => `<div onclick="selectCar('${name.replace(/'/g, "\\'")}')">${escapeHtml(name)}</div>`).join('');
+            carDropdown.classList.add('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!carSearchInput.contains(e.target) && !carDropdown.contains(e.target)) {
+                carDropdown.classList.remove('show');
+            }
+        });
+        window.selectCar = function(car) {
+            carSearchInput.value = car;
+            selectedCar.value = car;
+            carDropdown.classList.remove('show');
+        };
+
+        vinylImage.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        window.saveVinyl = async function() {
+            const name = vinylName.value.trim();
+            const car = selectedCar.value;
+            const code = vinylCode.value.trim();
+            const image = imagePreview.src || '';
+
+            if (!name || !car || !code) {
+                alert('Заполните название, машину и код винила!');
+                return;
+            }
+
+            try {
+                const newVinyl = await api.createVinyl(name, car, code, image);
+                vinyls.unshift(newVinyl);
+                renderVinyls();
+                closeVinylModal();
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        // Инициализация
+        loadVinyls();
+    </script>
+</body>
+</html>
