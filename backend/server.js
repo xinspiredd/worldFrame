@@ -9,23 +9,33 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// CORS - разрешаем запросы с фронтенда
+// Настройка CORS – добавьте ваш домен фронтенда
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://worldframe-backend.onrender.com', // ваш домен на Vercel
+];
 app.use(cors({
-  origin: ['http://localhost:3000', 'world-frame-1adq-git-main-shelests-projects.vercel.app'], // добавьте свой домен с протоколом
+  origin: allowedOrigins,
   credentials: true
 }));
 
 app.use(express.json());
 
-// Routes
+// Подключаем маршруты
 app.use('/api/auth', authRoutes);
 app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGOBD_URL; // поддержка обоих вариантов, но лучше привести к единому виду
+// Используем переменную из .env (у вас MONGO_DB_URL)
+const MONGO_URI = process.env.MONGO_DB_URL;
 
-mongoose.connect(MONGODB_URI, {
+if (!MONGO_URI) {
+  console.error('❌ MONGO_DB_URL не задан в переменных окружения');
+  process.exit(1);
+}
+
+mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -37,4 +47,5 @@ mongoose.connect(MONGODB_URI, {
 })
 .catch(err => {
   console.error('❌ MongoDB connection error:', err);
+  process.exit(1);
 });
