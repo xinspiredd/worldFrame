@@ -9,14 +9,12 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// Разрешённые источники (CORS)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://world-frame-ladq.vercel.app',
-  'https://world-frame-q4tr1f5rv-shellets-projects.vercel.app',
-  'https://world-frame-kwlj5sxel-shellets-projects.vercel.app'
-];
-];
+// Разрешенные источники (CORS)
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
@@ -30,15 +28,16 @@ app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-// Используем переменную, которая уже есть на Render — MONGODB_URI
-const MONGO_URI = process.env.MONGODB_URI;
 
-if (!MONGO_URI) {
+// Используем переменную, которая уже есть на Render — MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
   console.error('❌ MONGODB_URI не задан в переменных окружения');
   process.exit(1);
 }
 
-mongoose.connect(MONGO_URI, {
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -52,6 +51,3 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
-
-
-
