@@ -122,10 +122,10 @@ window.App = (function() {
     async function submitAuth() {
         const loginInput = document.getElementById('authLogin');
         const passwordInput = document.getElementById('authPassword');
-        const login = loginInput.value.trim();
+        const loginValue = loginInput.value.trim();  // переименовано, чтобы не конфликтовать с функцией login
         const password = passwordInput.value.trim();
 
-        if (!login || !password) {
+        if (!loginValue || !password) {
             alert('Заполните логин и пароль');
             return;
         }
@@ -134,9 +134,9 @@ window.App = (function() {
         if (authMode === 'register') {
             const adminKeyInput = document.getElementById('authAdminKey');
             const key = adminKeyInput.value.trim();
-            result = await register(login, password, key);
+            result = await register(loginValue, password, key);
         } else {
-            result = await login(login, password);
+            result = await login(loginValue, password);
         }
 
         if (result.success) {
