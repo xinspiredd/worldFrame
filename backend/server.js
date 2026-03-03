@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -9,7 +8,7 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// Явная обработка CORS (гарантирует заголовки для всех ответов, включая OPTIONS)
+// Явная обработка CORS (работает для всех запросов, включая OPTIONS)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
