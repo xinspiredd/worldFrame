@@ -3,16 +3,26 @@ window.App = (function() {
     let currentUser = null;
 
     async function init() {
+        console.log('🔄 admin.js init started');
+        // Проверяем, существует ли api
+        if (typeof window.api === 'undefined') {
+            console.error('❌ api не определён! Проверьте загрузку api.js');
+            return;
+        }
         const token = localStorage.getItem('token');
         if (token) {
             try {
-                const data = await api.getCurrentUser();
+                console.log('🔍 Проверка токена...');
+                const data = await window.api.getCurrentUser();
                 currentUser = data.user;
+                console.log('👤 Текущий пользователь:', currentUser);
             } catch (error) {
+                console.warn('⚠️ Ошибка получения пользователя:', error.message);
                 localStorage.removeItem('token');
             }
         }
         updateUI();
+        console.log('✅ admin.js init завершён');
     }
 
     function updateUI() {
@@ -43,8 +53,8 @@ window.App = (function() {
 
     async function register(login, password, adminKey) {
         try {
-            const data = await api.register(login, password, adminKey);
-            api.setToken(data.token);
+            const data = await window.api.register(login, password, adminKey);
+            window.api.setToken(data.token);
             currentUser = data.user;
             updateUI();
             return { success: true };
@@ -55,8 +65,8 @@ window.App = (function() {
 
     async function login(login, password) {
         try {
-            const data = await api.login(login, password);
-            api.setToken(data.token);
+            const data = await window.api.login(login, password);
+            window.api.setToken(data.token);
             currentUser = data.user;
             updateUI();
             return { success: true };
@@ -66,7 +76,7 @@ window.App = (function() {
     }
 
     function logout() {
-        api.setToken(null);
+        window.api.setToken(null);
         currentUser = null;
         updateUI();
         window.location.reload();
