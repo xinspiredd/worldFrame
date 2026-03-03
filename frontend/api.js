@@ -1,4 +1,7 @@
-const API_URL = 'https://your-backend.com/api'; // замените на реальный адрес
+// frontend/api.js
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ИЛИ для обычного JS (без Vite), используйте process.env:
+// const API_URL = process.env.API_URL || 'http://localhost:5000/api';
 
 class Api {
     constructor() {
@@ -150,5 +153,6 @@ class Api {
         });
     }
 }
+
 
 window.api = new Api();
