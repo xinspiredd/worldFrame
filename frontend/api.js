@@ -1,5 +1,5 @@
 // frontend/api.js
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://worldframe-backend.onrender.com';
 // ИЛИ для обычного JS (без Vite), используйте process.env:
 // const API_URL = process.env.API_URL || 'http://localhost:5000/api';
 
@@ -156,3 +156,4 @@ class Api {
 
 
 window.api = new Api();
+
