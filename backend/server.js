@@ -11,7 +11,7 @@ const app = express();
 
 // CORS – разрешаем запросы с фронтенда
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://your-frontend-domain.com'], // замените на свой домен
+    origin: ['http://localhost:3000', 'world-frame-1adq.vercel.app'], // замените на свой домен
     credentials: true
 }));
 app.use(express.json());
@@ -33,4 +33,5 @@ mongoose.connect(process.env.MONGODB_URI, {
     });
 }).catch(err => {
     console.error('❌ MongoDB connection error:', err);
+
 });
