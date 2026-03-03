@@ -1,3 +1,4 @@
+console.log('api.js загружен, начинаю выполнение');
 // frontend/api.js
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -147,3 +148,4 @@ class Api {
 
 // Создаём глобальный экземпляр для использования в других скриптах
 window.api = new Api();
+
