@@ -1,17 +1,6 @@
 // frontend/api.js
-// Универсальное определение базового URL (работает и в модулях, и в обычных скриптах)
-const API_URL = (function() {
-    // Пытаемся получить из import.meta.env (если скрипт загружен как модуль)
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
-        return import.meta.env.VITE_API_URL;
-    }
-    // Пытаемся получить из process.env (для Node.js окружения, например, при SSR)
-    if (typeof process !== 'undefined' && process.env && process.env.API_URL) {
-        return process.env.API_URL;
-    }
-    // Если ничего не нашли, используем localhost для разработки
-    return 'http://localhost:5000/api';
-})();
+// Универсальное определение базового URL (без import.meta)
+const API_URL = window.__API_URL || 'http://localhost:5000/api';
 
 console.log('✅ API_URL =', API_URL);
 
