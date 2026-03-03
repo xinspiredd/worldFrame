@@ -12,7 +12,7 @@ const app = express();
 // Настройка CORS – добавьте ваш домен фронтенда
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://worldframe-backend.onrender.com', // ваш домен на Vercel
+  'https://world-frame-ladq.vercel.app', // ваш домен на Vercel
 ];
 app.use(cors({
   origin: allowedOrigins,
@@ -49,3 +49,4 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
