@@ -1,7 +1,5 @@
 // frontend/api.js
-const API_URL = import.meta.env.VITE_API_URL || 'https://worldframe-backend.onrender.com';
-// ИЛИ для обычного JS (без Vite), используйте process.env:
-// const API_URL = process.env.API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class Api {
     constructor() {
@@ -28,18 +26,23 @@ class Api {
             headers['Authorization'] = `Bearer ${this.token}`;
         }
 
-        const response = await fetch(url, {
-            ...options,
-            headers
-        });
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
 
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'Ошибка запроса');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Ошибка запроса');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API request error:', error);
+            throw error;
         }
-
-        return data;
     }
 
     // Аутентификация
@@ -66,22 +69,10 @@ class Api {
         return this.request(`/builds/${encodeURIComponent(carName)}`);
     }
 
-    // ОБНОВЛЁН: теперь принимает все поля
-    async createBuild(carName, title, price, engine, turbo, transmission, suspension, brakes, tires, details) {
+    async createBuild(carName, title, details) {
         return this.request('/builds', {
             method: 'POST',
-            body: JSON.stringify({
-                carName,
-                title,
-                price,
-                engine,
-                turbo,
-                transmission,
-                suspension,
-                brakes,
-                tires,
-                details
-            })
+            body: JSON.stringify({ carName, title, details })
         });
     }
 
@@ -111,7 +102,7 @@ class Api {
         });
     }
 
-    // Винилы (без изменений)
+    // Винилы
     async getVinyls() {
         return this.request('/vinyls');
     }
@@ -154,6 +145,5 @@ class Api {
     }
 }
 
-
+// Создаём глобальный экземпляр
 window.api = new Api();
-
