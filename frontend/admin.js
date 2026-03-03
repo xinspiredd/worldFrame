@@ -31,7 +31,6 @@ window.App = (function() {
             `;
         }
 
-        // Админ-панель (например, для загрузки фото машин)
         const adminPanel = document.getElementById('adminPhotoPanel');
         if (adminPanel) {
             if (currentUser?.isAdmin) {
@@ -81,7 +80,6 @@ window.App = (function() {
         return currentUser?.isAdmin || false;
     }
 
-    // Модальное окно
     let authModal, authTitle, authToggle, adminKeyField, authMode = 'login';
 
     function initModal() {
@@ -139,7 +137,6 @@ window.App = (function() {
         }
     }
 
-    // Публичное API модуля
     return {
         init,
         getCurrentUser,
@@ -152,5 +149,4 @@ window.App = (function() {
     };
 })();
 
-// Автоматическая инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => App.init());
