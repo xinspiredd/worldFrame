@@ -1,3 +1,4 @@
+// frontend/admin.js
 window.App = (function() {
     let currentUser = null;
 
@@ -80,7 +81,7 @@ window.App = (function() {
         return currentUser?.isAdmin || false;
     }
 
-    // Модальное окно (код из предыдущих версий, адаптированный под вызовы)
+    // Модальное окно
     let authModal, authTitle, authToggle, adminKeyField, authMode = 'login';
 
     function initModal() {
@@ -100,7 +101,7 @@ window.App = (function() {
     }
 
     function closeAuthModal() {
-        authModal.classList.remove('active');
+        if (authModal) authModal.classList.remove('active');
     }
 
     function toggleAuthMode() {
@@ -111,8 +112,11 @@ window.App = (function() {
     }
 
     async function submitAuth() {
-        const login = document.getElementById('authLogin').value.trim();
-        const password = document.getElementById('authPassword').value.trim();
+        const loginInput = document.getElementById('authLogin');
+        const passwordInput = document.getElementById('authPassword');
+        const login = loginInput.value.trim();
+        const password = passwordInput.value.trim();
+
         if (!login || !password) {
             alert('Заполните логин и пароль');
             return;
@@ -120,7 +124,8 @@ window.App = (function() {
 
         let result;
         if (authMode === 'register') {
-            const key = document.getElementById('authAdminKey').value.trim();
+            const adminKeyInput = document.getElementById('authAdminKey');
+            const key = adminKeyInput.value.trim();
             result = await register(login, password, key);
         } else {
             result = await login(login, password);
@@ -134,6 +139,7 @@ window.App = (function() {
         }
     }
 
+    // Публичное API модуля
     return {
         init,
         getCurrentUser,
@@ -146,4 +152,5 @@ window.App = (function() {
     };
 })();
 
+// Автоматическая инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => App.init());
