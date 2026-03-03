@@ -48,8 +48,8 @@ router.post('/register', [
             }
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка сервера' });
+        console.error('❌ Register error:', error);
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -91,8 +91,8 @@ router.post('/login', [
             }
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ошибка сервера' });
+        console.error('❌ Login error:', error);
+        res.status(500).json({ message: error.message });
     }
 });
 
