@@ -10,9 +10,7 @@ const vinylRoutes = require('./routes/vinyls');
 const app = express();
 
 // Разрешённые источники (CORS)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://world-frame-ladq.vercel.app'
+const allowedOrigins = ['*'];
 ];
 
 app.use(cors({
@@ -50,3 +48,4 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
