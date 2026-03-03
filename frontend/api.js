@@ -1,5 +1,4 @@
 // frontend/api.js
-// Универсальное определение базового URL (без import.meta)
 const API_URL = window.__API_URL || 'http://localhost:5000/api';
 
 console.log('✅ API_URL =', API_URL);
@@ -53,7 +52,6 @@ class Api {
         }
     }
 
-    // Аутентификация
     async register(login, password, adminKey) {
         return this.request('/auth/register', {
             method: 'POST',
@@ -72,7 +70,6 @@ class Api {
         return this.request('/auth/me');
     }
 
-    // Билды
     async getBuilds(carName) {
         return this.request(`/builds/${encodeURIComponent(carName)}`);
     }
@@ -110,7 +107,6 @@ class Api {
         });
     }
 
-    // Винилы
     async getVinyls() {
         return this.request('/vinyls');
     }
@@ -153,6 +149,5 @@ class Api {
     }
 }
 
-// Создаём глобальный экземпляр
 window.api = new Api();
 console.log('🌍 window.api создан');
