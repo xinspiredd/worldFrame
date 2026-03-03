@@ -9,15 +9,9 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// Разрешенные источники (CORS)
+// Временно разрешаем все источники (для отладки)
 app.use(cors({
-  origin: '*',
-  credentials: true
-}));
-
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: '*'
 }));
 
 app.use(express.json());
@@ -28,8 +22,6 @@ app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-
-// Используем переменную, которая уже есть на Render — MONGODB_URI
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
