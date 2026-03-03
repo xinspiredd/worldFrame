@@ -9,7 +9,6 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// Разрешённые источники (CORS)
 const allowedOrigins = [
   'http://localhost:3000',
   'https://world-frame-ladq.vercel.app'
@@ -22,16 +21,15 @@ app.use(cors({
 
 app.use(express.json());
 
-// Маршруты
 app.use('/api/auth', authRoutes);
 app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI; // или MONGO_URL, смотря что у вас в .env
+const MONGO_URI = process.env.MONGO_URL; // или process.env.MONGODB_URI, смотря как названо
 
 if (!MONGO_URI) {
-  console.error('❌ MONGO_URI не задан в переменных окружения');
+  console.error('❌ MONGO_URL не задан');
   process.exit(1);
 }
 
