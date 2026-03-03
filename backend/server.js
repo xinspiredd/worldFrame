@@ -9,11 +9,12 @@ const vinylRoutes = require('./routes/vinyls');
 
 const app = express();
 
-// Настройка CORS – добавьте ваш домен фронтенда
+// Разрешённые источники (CORS)
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://world-frame-ladq.vercel.app', // ваш домен на Vercel
+  'https://world-frame-ladq.vercel.app'
 ];
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
@@ -21,17 +22,16 @@ app.use(cors({
 
 app.use(express.json());
 
-// Подключаем маршруты
+// Маршруты
 app.use('/api/auth', authRoutes);
 app.use('/api/builds', buildRoutes);
 app.use('/api/vinyls', vinylRoutes);
 
 const PORT = process.env.PORT || 5000;
-// Используем переменную из .env (у вас MONGO_DB_URL)
-const MONGO_URI = process.env.MONGO_DB_URL;
+const MONGO_URI = process.env.MONGODB_URI; // или MONGO_URL, смотря что у вас в .env
 
 if (!MONGO_URI) {
-  console.error('❌ MONGO_DB_URL не задан в переменных окружения');
+  console.error('❌ MONGO_URI не задан в переменных окружения');
   process.exit(1);
 }
 
@@ -49,4 +49,3 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
-
