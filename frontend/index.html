@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>worldFrame — билды для NFS World</title>
     <style>
-        /* ========== ТЁМНАЯ ТЕМА ========== */
+        /* ========== ОБЩИЕ СТИЛИ ========== */
         * {
             margin: 0;
             padding: 0;
@@ -25,6 +25,7 @@
             padding: 20px;
         }
 
+        /* Шапка */
         .top-bar {
             display: flex;
             align-items: center;
@@ -83,6 +84,7 @@
             font-weight: 500;
         }
 
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -154,6 +156,7 @@
             flex: 1;
         }
 
+        /* Основной макет */
         .main-layout {
             display: grid;
             grid-template-columns: 260px 1fr;
@@ -356,6 +359,7 @@
             border-color: #4ab0ff;
         }
 
+        /* Админ-панель для фото */
         .admin-section {
             margin-top: 30px;
             padding-top: 20px;
@@ -454,19 +458,19 @@
         </footer>
     </div>
 
-    <!-- Задаём адрес бэкенда глобально (без import.meta) -->
+    <!-- Задаём адрес бэкенда глобально -->
     <script>
         window.__API_URL = 'https://worldframe-backend.onrender.com/api';
         console.log('🌐 API URL задан:', window.__API_URL);
     </script>
 
-    <!-- Подключаем скрипты в правильном порядке -->
+    <!-- Подключаем скрипты -->
     <script src="cars.js"></script>
     <script src="carImages.js"></script>
     <script src="api.js"></script>
     <script src="admin.js"></script>
 
-    <!-- Скрипт для работы главной страницы (фильтры, отображение) -->
+    <!-- Скрипт для главной страницы -->
     <script>
         // ---------- ИНИЦИАЛИЗАЦИЯ ----------
         const carsData = window.carsData;
