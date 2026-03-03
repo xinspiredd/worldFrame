@@ -11,41 +11,22 @@ router.get('/:carName', async (req, res) => {
             .sort('-createdAt');
         res.json(builds);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
-// Создать новый билд (обновлён)
+// Создать новый билд
 router.post('/', auth, async (req, res) => {
     try {
-        const {
-            carName,
-            title,
-            price,
-            engine,
-            turbo,
-            transmission,
-            suspension,
-            brakes,
-            tires,
-            details
-        } = req.body;
-
+        const { carName, title, details } = req.body;
         const build = new Build({
             carName,
             title,
-            price: price || 0,
-            engine: engine || '',
-            turbo: turbo || '',
-            transmission: transmission || '',
-            suspension: suspension || '',
-            brakes: brakes || '',
-            tires: tires || '',
-            details: details || '',
+            details,
             author: req.user.login,
             authorId: req.user.userId
         });
-
         await build.save();
         res.status(201).json(build);
     } catch (error) {
@@ -54,14 +35,15 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-// Поставить лайк/дизлайк (без изменений)
+// Поставить лайк/дизлайк
 router.post('/:id/like', auth, async (req, res) => {
     try {
-        const { type } = req.body;
+        const { type } = req.body; // 'like' или 'dislike'
         const build = await Build.findById(req.params.id);
         if (!build) {
             return res.status(404).json({ message: 'Билд не найден' });
         }
+
         if (type === 'like') {
             build.dislikes = build.dislikes.filter(id => id.toString() !== req.user.userId);
             if (!build.likes.includes(req.user.userId)) {
@@ -77,19 +59,21 @@ router.post('/:id/like', auth, async (req, res) => {
                 build.dislikes = build.dislikes.filter(id => id.toString() !== req.user.userId);
             }
         }
+
         await build.save();
-        res.json({ 
-            likes: build.likes.length, 
+        res.json({
+            likes: build.likes.length,
             dislikes: build.dislikes.length,
-            userAction: build.likes.includes(req.user.userId) ? 'like' : 
+            userAction: build.likes.includes(req.user.userId) ? 'like' :
                        (build.dislikes.includes(req.user.userId) ? 'dislike' : null)
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
 
-// Добавить комментарий (без изменений)
+// Добавить комментарий
 router.post('/:id/comment', auth, async (req, res) => {
     try {
         const { text } = req.body;
@@ -97,13 +81,16 @@ router.post('/:id/comment', auth, async (req, res) => {
         if (!build) {
             return res.status(404).json({ message: 'Билд не найден' });
         }
+
         build.comments.push({
             author: req.user.login,
             text
         });
+
         await build.save();
         res.json(build.comments[build.comments.length - 1]);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -114,6 +101,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
         await Build.findByIdAndDelete(req.params.id);
         res.json({ message: 'Билд удалён' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -125,10 +113,12 @@ router.delete('/:id/comment/:commentId', adminAuth, async (req, res) => {
         if (!build) {
             return res.status(404).json({ message: 'Билд не найден' });
         }
+
         build.comments = build.comments.filter(c => c._id.toString() !== req.params.commentId);
         await build.save();
         res.json({ message: 'Комментарий удалён' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
