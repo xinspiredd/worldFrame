@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
         const vinyls = await Vinyl.find().populate('authorId', 'login').sort('-createdAt');
         res.json(vinyls);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -19,6 +20,7 @@ router.get('/car/:carName', async (req, res) => {
         const vinyls = await Vinyl.find({ car: req.params.carName }).populate('authorId', 'login').sort('-createdAt');
         res.json(vinyls);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -27,7 +29,6 @@ router.get('/car/:carName', async (req, res) => {
 router.post('/', auth, async (req, res) => {
     try {
         const { name, car, code, image } = req.body;
-        
         const vinyl = new Vinyl({
             name,
             car,
@@ -36,10 +37,10 @@ router.post('/', auth, async (req, res) => {
             author: req.user.login,
             authorId: req.user.userId
         });
-
         await vinyl.save();
         res.status(201).json(vinyl);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -49,7 +50,6 @@ router.post('/:id/like', auth, async (req, res) => {
     try {
         const { type } = req.body;
         const vinyl = await Vinyl.findById(req.params.id);
-        
         if (!vinyl) {
             return res.status(404).json({ message: 'Винил не найден' });
         }
@@ -71,13 +71,14 @@ router.post('/:id/like', auth, async (req, res) => {
         }
 
         await vinyl.save();
-        res.json({ 
-            likes: vinyl.likes.length, 
+        res.json({
+            likes: vinyl.likes.length,
             dislikes: vinyl.dislikes.length,
-            userAction: vinyl.likes.includes(req.user.userId) ? 'like' : 
+            userAction: vinyl.likes.includes(req.user.userId) ? 'like' :
                        (vinyl.dislikes.includes(req.user.userId) ? 'dislike' : null)
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -87,7 +88,6 @@ router.post('/:id/comment', auth, async (req, res) => {
     try {
         const { text } = req.body;
         const vinyl = await Vinyl.findById(req.params.id);
-        
         if (!vinyl) {
             return res.status(404).json({ message: 'Винил не найден' });
         }
@@ -100,6 +100,7 @@ router.post('/:id/comment', auth, async (req, res) => {
         await vinyl.save();
         res.json(vinyl.comments[vinyl.comments.length - 1]);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -110,6 +111,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
         await Vinyl.findByIdAndDelete(req.params.id);
         res.json({ message: 'Винил удалён' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
@@ -126,6 +128,7 @@ router.delete('/:id/comment/:commentId', adminAuth, async (req, res) => {
         await vinyl.save();
         res.json({ message: 'Комментарий удалён' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
