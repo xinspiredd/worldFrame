@@ -4,7 +4,6 @@ window.App = (function() {
 
     async function init() {
         console.log('🔄 admin.js init started');
-        // Проверяем, существует ли api
         if (typeof window.api === 'undefined') {
             console.error('❌ api не определён! Проверьте загрузку api.js');
             return;
@@ -122,7 +121,7 @@ window.App = (function() {
     async function submitAuth() {
         const loginInput = document.getElementById('authLogin');
         const passwordInput = document.getElementById('authPassword');
-        const loginValue = loginInput.value.trim();  // переименовано, чтобы не конфликтовать с функцией login
+        const loginValue = loginInput.value.trim();
         const password = passwordInput.value.trim();
 
         if (!loginValue || !password) {
