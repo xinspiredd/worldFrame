@@ -1,4 +1,4 @@
-// carImages.js
+// frontend/carImages.js
 window.carImages = (function() {
     const STORAGE_KEY = 'worldframe_car_images';
 
