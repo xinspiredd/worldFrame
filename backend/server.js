@@ -13,7 +13,9 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://world-frame-ladq.vercel.app',
-  'https://world-frame-q4tr1f5rv-shellets-projects.vercel.app'
+  'https://world-frame-q4tr1f5rv-shellets-projects.vercel.app',
+  'https://world-frame-kwlj5sxel-shellets-projects.vercel.app'
+];
 ];
 app.use(cors({
   origin: allowedOrigins,
@@ -50,5 +52,6 @@ mongoose.connect(MONGO_URI, {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
 
 
