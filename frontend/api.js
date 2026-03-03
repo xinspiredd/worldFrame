@@ -1,18 +1,25 @@
-console.log('api.js загружен, начинаю выполнение');
 // frontend/api.js
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Определяем базовый URL API
+const API_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) 
+    ? import.meta.env.VITE_API_URL 
+    : (process && process.env && process.env.API_URL) || 'http://localhost:5000/api';
+
+console.log('✅ API_URL =', API_URL);
 
 class Api {
     constructor() {
         this.token = localStorage.getItem('token');
+        console.log('🔧 Api instance created, token =', this.token ? 'exists' : 'none');
     }
 
     setToken(token) {
         this.token = token;
         if (token) {
             localStorage.setItem('token', token);
+            console.log('🔐 Token saved');
         } else {
             localStorage.removeItem('token');
+            console.log('🔓 Token removed');
         }
     }
 
@@ -26,6 +33,8 @@ class Api {
         if (this.token) {
             headers['Authorization'] = `Bearer ${this.token}`;
         }
+
+        console.log(`🌐 Fetching ${options.method || 'GET'} ${url}`);
 
         try {
             const response = await fetch(url, {
@@ -41,7 +50,7 @@ class Api {
 
             return data;
         } catch (error) {
-            console.error('API request error:', error);
+            console.error('❌ API request error:', error);
             throw error;
         }
     }
@@ -146,8 +155,6 @@ class Api {
     }
 }
 
-// Создаём глобальный экземпляр для использования в других скриптах
-console.log('Создаю глобальный api');
+// Создаём глобальный экземпляр
 window.api = new Api();
-
-
+console.log('🌍 window.api создан');
